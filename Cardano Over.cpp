@@ -1,11 +1,12 @@
-// Cardano Over.cpp : Define o ponto de entrada para o aplicativo.
-//
+// DECLARAÇÃO DAS DIRETIVAS:
 
 #include "framework.h"
 #include "Cardano Over.h"
 #include "shellapi.h"
 #include "Windows.h"
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include <stb_image.h>
 #include <base64.h>
 #include <iostream>
@@ -17,28 +18,37 @@
 #include <chrono>
 #include <thread>
 #include <ctime>
+
 #pragma comment(lib, "dwmapi.lib")
 
-#define _CRT_SECURE_NO_WARNINGS  // Desativa o aviso de depreciação
+#define STB_IMAGE_IMPLEMENTATION
+#define _CRT_SECURE_NO_WARNINGS
 #define MAX_LOADSTRING 100
 #define WM_SETEDITCOLOR (WM_USER + 1)
 #define STM_SETBKCOLOR (WM_USER + 1)
+
 #define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
 #define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
 
 #define TAMANHO_MAX_STRING 100
 #define TAMANHO_MAX_COMANDO 500
+
 #define WM_USER_HTTP_COMPLETED (WM_USER + 1)
 #define WM_USER_UPDATE_PROGRESS (WM_USER + 2)
 #define WM_USER_UPDATE_COMPLETED (WM_USER + 3)
 
-// Variáveis Globais:
-HINSTANCE hInst;                                // instância atual
-WCHAR szTitle[MAX_LOADSTRING];                  // O texto da barra de título
-WCHAR szWindowClass[MAX_LOADSTRING];            // o nome da classe da janela principal
+// VARIÁVEIS GLOBAIS:
+
+HINSTANCE hInst;
+WCHAR szTitle[MAX_LOADSTRING];
+WCHAR szWindowClass[MAX_LOADSTRING];
 
 HWND hwndImage1;
 HWND PriceADA;
+
+// DECLARAÇÔES DE FUNÇÔES:
+
+// FUNÇÂO: 001 -> Propósito: Leitura do conteúdo de arquivos.
 
 std::wstring ReadContents(const std::wstring& filePath) {
     std::wifstream file(filePath);
@@ -52,6 +62,8 @@ std::wstring ReadContents(const std::wstring& filePath) {
 
     return content;
 }
+
+// FUNÇÂO: 002 -> Propósito: Capturar/selecionar um trecho dos dados.
 
 std::wstring SelectContents(const std::wstring& content, const std::wstring& start, const std::wstring& end) {
     size_t startPos = content.find(start);
@@ -67,16 +79,20 @@ std::wstring SelectContents(const std::wstring& content, const std::wstring& sta
     return content.substr(startPos + start.length(), endPos - startPos - start.length());
 }
 
+// Carregando a imagem que será usada no fundo da aplicação:
+
 const char* imagePath1 = "ADAUSD.png";
 int width1, height1, channels1;
 int PosXIMG1, PosYIMG1;
 unsigned char* image_data1 = stbi_load(imagePath1, &width1, &height1, &channels1, 3);
 
-// Declarações de encaminhamento de funções incluídas nesse módulo de código:
+
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+// DECLARAÇÃO DA FUNÇÂO PRINCIPAL DO PROGRAMA:
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -86,14 +102,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: Coloque o código aqui.
-
-    // Inicializar cadeias de caracteres globais
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_CARDANOOVER, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
-    // Realize a inicialização do aplicativo:
     if (!InitInstance(hInstance, nCmdShow))
     {
         return FALSE;
@@ -103,7 +115,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
-    // Loop de mensagem principal:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
@@ -139,19 +150,19 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-    hInst = hInstance; // Armazenar o identificador de instância em nossa variável global
+    hInst = hInstance;
 
     HWND hWnd = CreateWindowEx(
-        0,                              // Opções de estilo estendidas
-        szWindowClass,                      // Nome da classe da janela
-        szTitle,                 // Título da janela
-        WS_OVERLAPPEDWINDOW,            // Estilo da janela
-        CW_USEDEFAULT, CW_USEDEFAULT,   // Posição inicial (usando padrão)
-        350, 250,                       // Largura e altura da janela
-        NULL,                           // Handle do pai
-        NULL,                           // Handle do menu
-        hInstance,                      // Handle da instância
-        NULL                            // Parâmetro adicional
+        0,
+        szWindowClass,
+        szTitle,
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        350, 250,
+        NULL,
+        NULL,
+        hInstance,
+        NULL
     );
 
     if (!hWnd)
@@ -172,7 +183,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
-        // Analise as seleções do menu:
+
         switch (wmId)
         {
         case IDM_ABOUT:
@@ -190,7 +201,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        // TODO: Adicione qualquer código de desenho que use hdc aqui...
         EndPaint(hWnd, &ps);
     }
     break;
@@ -209,11 +219,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int PosXWLLT = 20 + (windowWidth1 - 600) / 2;
             int PosYWLLT = 362 + ((windowHeight1 - height1) / 2);
 
-            // Agora você tem os dados da imagem e pode criar a janela de exibição da imagem.
-
             hwndImage1 = CreateWindow(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_BITMAP, PosXIMG1, PosYIMG1, 300, 500, hWnd, NULL, NULL, NULL);
 
-            // Crie a imagem a partir dos dados carregados
+            // Criação da imagem a partir dos dados carregados:
+
             BITMAPINFO ImageSelected1 = { 0 };
             ImageSelected1.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
             ImageSelected1.bmiHeader.biWidth = width1;
@@ -233,36 +242,47 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             stbi_image_free(image_data1);
 
-            // Configuração para criar processo sem criar uma janela de console
+            // Configuração a fim de que a execução do comando pelo SO não mostre a execução na UI do PC:
+
             STARTUPINFO si = {};
             PROCESS_INFORMATION pi = {};
             si.cb = sizeof(si);
             si.dwFlags = STARTF_USESHOWWINDOW;
             si.wShowWindow = SW_HIDE; // Esconde a janela do console
 
-            // Caminho para o comando curl
+            // Caminho para o comando curl:
+
             TCHAR command[] = _T("cmd /c curl -sS -o CardanoNetwork.txt \"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=cardano&order=market_cap_desc&per_page=1&page=1&sparkline=false\"");
 
-            // Cria o processo
+            // Criação do processo:
+
             if (!CreateProcess(NULL, command, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
-                // Falha ao criar processo
+                
+                // Caso a criação do processo venha a falhar:
+
                 MessageBox(NULL, _T("Failed to create process!"), _T("Error"), MB_OK | MB_ICONERROR);
             }
             else {
-                // Aguarda até que o processo filho termine
+                
+                // Aguardar até que o processo filho termine
+                
                 WaitForSingleObject(pi.hProcess, INFINITE);
                 CloseHandle(pi.hProcess);
                 CloseHandle(pi.hThread);
 
-                // Atualiza a interface do usuário com os resultados
+                // Atualização da UI com os resultados da requisição HTTP.
+
                 PostMessage(hWnd, WM_USER_HTTP_COMPLETED, 0, 0);
             }
-            
+
             PriceADA = CreateWindowEx( 0, L"STATIC", L"Not found.", WS_CHILD | WS_VISIBLE, 200, 110, 75, 30, hWnd, NULL, GetModuleHandle(NULL), NULL);
         }
     }break;
     case WM_USER_HTTP_COMPLETED:
     {
+        
+        //PROPÓSITO DO SCRIPT : Execução após o êxito da requisição HTTP.
+
         std::wstring Content = ReadContents(L"CardanoNetwork.txt");
         std::wstring ValuePriceADA = SelectContents(Content, L"\"current_price\":", L",\"market_cap\":");
 
@@ -275,6 +295,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     case WM_CTLCOLORSTATIC:
     {
+        // PROPÓSITO DO SCRIPT: DEFINIR A COR DAS LETRAS E A COR DO FUNDO DAS ETIQUETAS.
+        
         SetTextColor((HDC)wParam, RGB(0, 0, 0));
         SetBkColor((HDC)wParam, RGB(255, 255, 255));
         return (LRESULT)CreateSolidBrush(RGB(115, 115, 115));
@@ -282,6 +304,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }break;
     case WM_SIZE:
     {
+        // PROPÓSITO DO SCRIPT:
+        
         RECT clientRect1;
         GetClientRect(hWnd, &clientRect1);
         int windowWidth1 = clientRect1.right - clientRect1.left;
@@ -307,7 +331,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-// Manipulador de mensagem para a caixa 'sobre'.
+// MANIPULADOR DA MENSAGEM PARA CAIXA 'ABOUT':
+
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
